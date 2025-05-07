@@ -20,29 +20,32 @@
     <module>server</module>
   </modules>
 
-  <!-- Dependency Manager -->
-  <dependencyManagement>
-    <dependencies>
-      <!-- JUnit is a testing framework -->
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>3.8.1</version>
-        <scope>test</scope>
-      </dependency>
-      <!--
-        INFO: Dependencies declared here are NOT included automatically.
-        Each child module must declare them explicitly to use them,
-        but without needing to repeat the version.
-      -->
-    </dependencies>
-  </dependencyManagement>
+  <!-- Project Dependencies -->
+  <dependencies>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-all</artifactId>
+      <version>4.2.0.Final</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>2.14.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.14.2</version>
+    </dependency>
+  </dependencies>
 
   <!-- Plugin version/configuration management for all child modules -->
   <build>
+    <!-- Default JAR manifest settings for all modules -->
     <pluginManagement>
       <plugins>
-        <!-- Maven plugin to build JAR files -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
@@ -50,9 +53,11 @@
           <configuration>
             <archive>
               <manifest>
-                <addClasspath>true</addClasspath> <!-- Adds classpath info into the manifest file -->
-                <classpathPrefix>lib/</classpathPrefix> <!-- Prefix used for dependent libraries in the manifest -->
-                <mainClass>com.game.App</mainClass>
+                <!--
+                  All modules will inherit this Main-Class unless they override it.
+                  Adjust to the correct entry point for each module if needed.
+                -->
+                <mainClass>com.game.app.App</mainClass>
               </manifest>
             </archive>
           </configuration>
@@ -60,10 +65,34 @@
       </plugins>
     </pluginManagement>
 
-    <!--
-      INFO: pluginManagement defines default versions/configurations.
-      To actually use this plugin, child modules must declare it explicitly in their own <plugins> section.
-    -->
+    <!-- Plugins that will actually run for every module -->
+    <plugins>
+      <!-- Maven Shade Plugin: creates a fat‑jar including all dependencies -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
+        <executions>
+          <execution>
+            <!-- run during the package phase -->
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <!-- Prevent renaming of the shade jar -->
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <transformers>
+                <!-- ensure the Main-Class goes into the shaded JAR’s manifest -->
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>com.game.app.App</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>
 
