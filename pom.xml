@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <!-- POM Version -->
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Project Info -->
+  <groupId>com.game</groupId>
+  <artifactId>my-game</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>my-game</name>
+  <!-- FIXME: change it to the project's website -->
+  <url>http://maven.apache.org</url>
+
+  <!-- Child Modules -->
+  <modules>
+    <module>client</module>
+    <module>server</module>
+  </modules>
+
+  <!-- Dependency Manager -->
+  <dependencyManagement>
+    <dependencies>
+      <!-- JUnit is a testing framework -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>3.8.1</version>
+        <scope>test</scope>
+      </dependency>
+      <!--
+        INFO: Dependencies declared here are NOT included automatically.
+        Each child module must declare them explicitly to use them,
+        but without needing to repeat the version.
+      -->
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- Plugin version/configuration management for all child modules -->
+  <build>
+    <pluginManagement>
+      <plugins>
+        <!-- Maven plugin to build JAR files -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.4.2</version>
+          <configuration>
+            <archive>
+              <manifest>
+                <addClasspath>true</addClasspath> <!-- Adds classpath info into the manifest file -->
+                <classpathPrefix>lib/</classpathPrefix> <!-- Prefix used for dependent libraries in the manifest -->
+                <mainClass>com.game.App</mainClass>
+              </manifest>
+            </archive>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <!--
+      INFO: pluginManagement defines default versions/configurations.
+      To actually use this plugin, child modules must declare it explicitly in their own <plugins> section.
+    -->
+  </build>
+</project>
+
