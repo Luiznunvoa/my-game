@@ -59,17 +59,13 @@ public class App {
             future.channel().closeFuture().sync();
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
-            System.err.println("\n 💀  Connection attempt was interrupted. 💀 \n");
-            group.shutdownGracefully();
-            return;
+            System.err.println("\n 💀 Connection attempt was interrupted, shutting down.... 💀 \n");
+
         } catch (Exception e) {
-            System.err.printf("\n 💀 Unexpected error during connection  💀 \n",
-                    host, port, e.getMessage());
-            e.printStackTrace(System.err);
-            group.shutdownGracefully();
-            return;
+            // Include host, port and exception message in the output
+            System.err.println("\n 💀 Unexpected error during connection, shutting down... 💀 \n");
         } finally {
-            // Ensure graceful shutdown of the EventLoopGroup
+            // Only shutdown here, once
             group.shutdownGracefully();
         }
     }
