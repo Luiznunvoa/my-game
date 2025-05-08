@@ -1,5 +1,8 @@
 package com.game.app;
 
+import com.game.util.ConsoleColor;
+import com.game.util.ConsoleUtil;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -7,8 +10,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 
 /**
  * Client Application Entry Point
@@ -47,23 +48,24 @@ public class App {
                     // Sets a socket option: keep‑alive probes to detect dead peers
                     .option(ChannelOption.SO_KEEPALIVE, true)
                     // Debug handler
-                    .handler(new LoggingHandler(LogLevel.INFO))
+                    // .handler(new LoggingHandler(LogLevel.INFO))
                     // Pipeline Initialization
                     .handler(new ClientChannelInitializer());
 
             // Attempt to connect
             ChannelFuture future = bootstrap.connect(host, port).sync();
-            System.out.printf("\n 🚀 Connected to server 🚀 \n", host, port);
+            ConsoleUtil.printf("[Client] Connected to server %s:%d 🚀\n", ConsoleColor.GREEN, host, port);
 
             // Wait until the connection is closed
             future.channel().closeFuture().sync();
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
-            System.err.println("\n 💀 Connection attempt was interrupted, shutting down.... 💀 \n");
+            ConsoleUtil.printlnBold("[Client] Connection attempt was interrupted, shutting down....", ConsoleColor.RED);
 
         } catch (Exception e) {
             // Include host, port and exception message in the output
-            System.err.println("\n 💀 Unexpected error during connection, shutting down... 💀 \n");
+            ConsoleUtil.printf("[Client] Unexpected error during connection:\n%s\n%s\n", ConsoleColor.RED, e.getMessage(), e.getCause());
+            
         } finally {
             // Only shutdown here, once
             group.shutdownGracefully();
@@ -79,7 +81,7 @@ public class App {
         String host = args.length > 0 ? args[0] : "localhost";
         int port = args.length > 1 ? Integer.parseInt(args[1]) : 8080;
 
-        System.out.printf("\n📶 Trying to connect client on %s:%d…%n \n", host, port);
+        ConsoleUtil.printf("[Client] Trying to connect client on %s:%d…%n", ConsoleColor.YELLOW, host, port);
         new App(host, port).run();
     }
 }
