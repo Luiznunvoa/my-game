@@ -16,6 +16,7 @@
 
   <!-- Child Modules -->
   <modules>
+    <module>common</module>
     <module>client</module>
     <module>server</module>
   </modules>
@@ -60,6 +61,16 @@
                 <mainClass>com.game.app.App</mainClass>
               </manifest>
             </archive>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>3.5.0</version>
+          <configuration>
+            <!-- sem isto, dá erro dizendo que mainClass está faltando -->
+            <mainClass>com.app.App</mainClass>
           </configuration>
         </plugin>
       </plugins>
