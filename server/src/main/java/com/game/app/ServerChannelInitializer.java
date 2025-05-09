@@ -1,5 +1,7 @@
 package com.game.app;
 
+import com.game.codec.JsonDecoder;
+import com.game.codec.JsonEncoder;
 import com.game.handler.ServerHandler;
 
 import io.netty.channel.ChannelInitializer;
@@ -23,8 +25,10 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
         ch.pipeline()
                 .addLast(new LoggingHandler(LogLevel.DEBUG))
                 .addLast("framer", new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()))
-                .addLast("decoder", new StringDecoder())
-                .addLast("encoder", new StringEncoder())
-                .addLast("handler", new ServerHandler());
+                .addLast("strDecoder", new StringDecoder()) // bytes → String
+                .addLast("jsonDecoder", new JsonDecoder()) // String → Message
+                .addLast("strEncoder", new StringEncoder()) // String ← bytes
+                .addLast("jsonEncoder", new JsonEncoder()) // Message → String
+                .addLast("clientHandler", new ServerHandler());
     }
 }

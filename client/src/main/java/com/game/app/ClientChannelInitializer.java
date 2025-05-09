@@ -9,6 +9,8 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.channel.ChannelInitializer;
 
+import com.game.codec.JsonDecoder;
+import com.game.codec.JsonEncoder;
 import com.game.handler.ClientHandler;
 
 public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> {
@@ -17,8 +19,10 @@ public class ClientChannelInitializer extends ChannelInitializer<SocketChannel> 
         channel.pipeline()
                 .addLast(new LoggingHandler(LogLevel.DEBUG))
                 .addLast("framer", new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()))
-                .addLast("decoder", new StringDecoder())
-                .addLast("encoder", new StringEncoder())
-                .addLast("handler", new ClientHandler());
+                .addLast("strDecoder", new StringDecoder()) // bytes → String
+                .addLast("jsonDecoder", new JsonDecoder()) // String → Message
+                .addLast("strEncoder", new StringEncoder()) // String ← bytes
+                .addLast("jsonEncoder", new JsonEncoder()) // Message → String
+                .addLast("clientHandler", new ClientHandler());
     }
 }

@@ -2,49 +2,32 @@ package com.game.codec;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.game.model.Message;
 import com.game.util.ConsoleUtil;
 
-public class JsonDecoder {
-    private final byte[] jsonBytes;
-    private final String json;
-    private final Message message;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToMessageDecoder;
 
-    public JsonDecoder(String b64) {
-        byte[] tmpBytes = null;
-        String tmpJson = null;
-        Message tmpMsg = null;
+/**
+ * Netty handler that decodes Base64-encoded JSON strings into Message objects.
+ */
+public class JsonDecoder extends MessageToMessageDecoder<String> {
+    private final ObjectMapper mapper = new ObjectMapper();
 
+    @Override
+    protected void decode(ChannelHandlerContext ctx, String b64msg, List<Object> out) {
         try {
-            tmpBytes = Base64.getDecoder().decode(b64);
-            tmpJson = new String(tmpBytes, StandardCharsets.UTF_8);
-            tmpMsg = new ObjectMapper().readValue(tmpJson, Message.class);
+            byte[] jsonBytes = Base64.getDecoder().decode(b64msg);
+            String json = new String(jsonBytes, StandardCharsets.UTF_8);
+            Message msg = mapper.readValue(json, Message.class);
+            out.add(msg);
         } catch (IllegalArgumentException e) {
             ConsoleUtil.printf("[JsonDecoder] Invalid Base64 input: %s", e.getMessage());
-        } catch (JsonMappingException e) {
-            ConsoleUtil.printf("[JsonDecoder] JSON mapping error: %s", e.getMessage());
-        } catch (JsonProcessingException e) {
-            ConsoleUtil.printf("[JsonDecoder] JSON processing error: %s", e.getMessage());
+        } catch (Exception e) {
+            ConsoleUtil.printf("[JsonDecoder] JSON decoding error: %s", e.getMessage());
         }
-
-        this.jsonBytes = tmpBytes;
-        this.json = tmpJson;
-        this.message = tmpMsg;
-    }
-
-    public byte[] getJsonBytes() {
-        return jsonBytes;
-    }
-
-    public String getJson() {
-        return json;
-    }
-
-    public Message getMessage() {
-        return message;
     }
 }

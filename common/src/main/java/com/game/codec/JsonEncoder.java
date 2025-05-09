@@ -2,40 +2,30 @@ package com.game.codec;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.game.model.Message;
-import com.game.util.ConsoleColor;
 import com.game.util.ConsoleUtil;
 
-public class JsonEncoder {
-    private final String json;
-    private final String b64;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToMessageEncoder;
 
-    public JsonEncoder(Message message) {
-        String tmpJson = null;
-        String tmpB64  = null;
+/**
+ * Encodes Message objects into Base64-encoded JSON strings for the Netty
+ * pipeline.
+ */
+public class JsonEncoder extends MessageToMessageEncoder<Message> {
+    private final ObjectMapper mapper = new ObjectMapper();
 
+    @Override
+    protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            tmpJson = mapper.writeValueAsString(message);
-            tmpB64 = Base64.getEncoder()
-                           .encodeToString(tmpJson.getBytes(StandardCharsets.UTF_8));
-        } catch (JsonProcessingException e) {
-            ConsoleUtil.printf("[JsonEncoder] Error serializing message: %s", ConsoleColor.RED, e.getMessage());
+            String json = mapper.writeValueAsString(msg);
+            String b64 = Base64.getEncoder().encodeToString(json.getBytes(StandardCharsets.UTF_8));
+            out.add(b64 + System.lineSeparator());
+        } catch (Exception e) {
+            ConsoleUtil.printf("[JsonEncoder] JSON encoding error: %s", e.getMessage());
         }
-
-        this.json = tmpJson;
-        this.b64  = tmpB64;
-    }
-
-    public String getJson() {
-        return json;
-    }
-
-    public String getB64() {
-        return b64;
     }
 }
-
